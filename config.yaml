@@ -1,0 +1,8 @@
+browser:
+  cdp_url: http://127.0.0.1:9223
+  allow_private_urls: true
+web:
+  backend: ddgs
+  search_backend: searxng
+auxiliary:
+  free_only: true

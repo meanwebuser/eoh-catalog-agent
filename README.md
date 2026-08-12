@@ -11,6 +11,7 @@ Give the agent a CSV/XLSX. It normalizes product data, quarantines duplicates an
 - duplicate SKU, missing field, price, and stock checks
 - non-zero exit for incomplete batches
 - revenue, execution cost, and net-profit receipt
+- persistent marketplace deal cards with qualification and stop-loss
 
 ```text
 supplier.csv  ->  checked catalog  ->  Shopify / WooCommerce drafts
@@ -49,6 +50,19 @@ When revenue and execution expense are supplied, the receipt also records the jo
 Required input columns are `name`, `sku`, and `price`; common supplier aliases such as `Product Name`, `Variant SKU`, `Regular Price`, `Image URL`, and `Vendor` are recognized automatically.
 
 The agent does not publish products or send marketplace proposals. A human reviews the import and explicitly launches publishing.
+
+## Run as a Hermes business operator
+
+Install the complete isolated profile from this repository:
+
+```bash
+hermes profile install https://github.com/meanwebuser/eoh-catalog-agent \
+  --name catalog-seller --alias -y
+export EOH_DEAL_ROOT="$PWD/.eoh/deals"
+catalog-seller chat -q "Find one paid catalog test, qualify it, and draft a proposal. Do not send it."
+```
+
+The profile combines Hermes search and its native browser tools with persistent deal state: discover → qualify → draft → negotiate → deliver → record real economics. It expects the established browser CDP at `http://127.0.0.1:9223`; change `browser.cdp_url` in the installed profile when your shared authenticated browser uses a different endpoint. Proposal submission, Connects spending, contracts, and publishing remain explicit human actions.
 
 ## Verify from source
 

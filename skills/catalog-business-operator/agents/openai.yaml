@@ -1,0 +1,4 @@
+interface:
+  display_name: "Catalog Business Operator"
+  short_description: "Find, qualify, negotiate, and deliver paid catalog jobs."
+  default_prompt: "Use the catalog business operator to turn a marketplace job into a qualified deal, proposal draft, and deliverable."
