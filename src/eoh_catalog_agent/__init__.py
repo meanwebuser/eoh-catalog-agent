@@ -3,4 +3,4 @@
 from .pipeline import prepare_catalog
 
 __all__ = ["prepare_catalog"]
-__version__ = "0.1.0"
+__version__ = "0.1.1"

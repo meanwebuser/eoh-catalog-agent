@@ -79,3 +79,23 @@ def test_xlsx_input_uses_the_same_normalization_pipeline(tmp_path: Path) -> None
 
     assert receipt["ready_products"] == 1
     assert rows[0]["Regular price"] == "12.50"
+
+
+def test_woocommerce_variable_parent_can_have_no_price_and_keeps_variation_link(tmp_path: Path) -> None:
+    source = tmp_path / "variables.csv"
+    source.write_text(
+        "Type,SKU,Name,Regular price,Parent,Categories,Images\n"
+        "variable,SHIRT,Shirt,,,Clothing,https://example.com/shirt.jpg\n"
+        "variation,SHIRT-BLUE,Shirt - Blue,25,SHIRT,,https://example.com/blue.jpg\n",
+        encoding="utf-8",
+    )
+
+    receipt = prepare_catalog(source, tmp_path / "out", stores=("woocommerce",))
+    rows = read_csv(tmp_path / "out" / "woocommerce_import.csv")
+
+    assert receipt["ready_products"] == 2
+    assert receipt["blocked_products"] == 0
+    assert rows[0]["Type"] == "variable"
+    assert rows[0]["Regular price"] == ""
+    assert rows[1]["Type"] == "variation"
+    assert rows[1]["Parent"] == "SHIRT"

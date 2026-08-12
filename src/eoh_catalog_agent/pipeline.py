@@ -18,6 +18,8 @@ class Product:
     name: str
     sku: str
     price: str
+    source_type: str = "simple"
+    parent: str = ""
     compare_at_price: str = ""
     description: str = ""
     brand: str = ""
@@ -42,6 +44,7 @@ class Issue:
 
 
 ALIASES = {
+    "source_type": ("type", "product type"),
     "name": ("name", "product name", "title", "product title", "item name"),
     "sku": ("sku", "product sku", "variant sku", "article", "article number"),
     "price": ("price", "regular price", "selling price", "sale price"),
@@ -57,6 +60,7 @@ ALIASES = {
     "color": ("color", "colour"),
     "size": ("size",),
     "handle": ("handle", "slug"),
+    "parent": ("parent", "parent sku"),
 }
 
 NORMALIZED_HEADERS = [field.name for field in fields(Product)]
@@ -116,6 +120,7 @@ WOOCOMMERCE_HEADERS = [
     "Images",
     "External URL",
     "Position",
+    "Parent",
     "Attribute 1 name",
     "Attribute 1 value(s)",
     "Attribute 1 visible",
@@ -278,7 +283,7 @@ def _shopify_row(product: Product) -> dict[str, str]:
 
 def _woocommerce_row(product: Product) -> dict[str, str]:
     return {
-        "Type": "simple",
+        "Type": product.source_type,
         "SKU": product.sku,
         "Name": product.name,
         "Published": "0",
@@ -300,6 +305,7 @@ def _woocommerce_row(product: Product) -> dict[str, str]:
         "Images": product.image_url,
         "External URL": product.source_url,
         "Position": "0",
+        "Parent": product.parent,
         "Attribute 1 name": "Color" if product.color else ("Size" if product.size else ""),
         "Attribute 1 value(s)": product.color or product.size,
         "Attribute 1 visible": "1" if product.color or product.size else "",
@@ -358,6 +364,7 @@ def prepare_catalog(
     for source_row, row in enumerate(rows, start=2):
         name = _value(row, mapping, "name")
         sku = _value(row, mapping, "sku")
+        source_type = _value(row, mapping, "source_type").lower() or "simple"
         normalized_sku = sku.casefold()
         row_issues: list[Issue] = []
 
@@ -370,7 +377,7 @@ def prepare_catalog(
 
         try:
             price = _money(_value(row, mapping, "price"))
-            if not price:
+            if not price and source_type != "variable":
                 raise ValueError("")
         except ValueError:
             price = ""
@@ -403,6 +410,8 @@ def prepare_catalog(
                 name=name,
                 sku=sku,
                 price=price,
+                source_type=source_type,
+                parent=_value(row, mapping, "parent"),
                 compare_at_price=compare_at_price,
                 description=_value(row, mapping, "description"),
                 brand=_value(row, mapping, "brand"),
@@ -441,7 +450,7 @@ def prepare_catalog(
     issue_counts = Counter(issue.code for issue in issues)
     receipt: dict[str, object] = {
         "agent": "eoh-catalog-agent",
-        "version": "0.1.0",
+        "version": "0.1.1",
         "job_id": job_id,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "input_file": str(source),
