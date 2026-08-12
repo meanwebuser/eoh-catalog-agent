@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 460" role="img" aria-labelledby="title desc">
+  <title id="title">EOH Catalog Agent</title>
+  <desc id="desc">A supplier spreadsheet becomes checked Shopify and WooCommerce draft imports with an audit receipt.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop stop-color="#06130f"/>
+      <stop offset="1" stop-color="#020706"/>
+    </linearGradient>
+    <linearGradient id="flow" x1="0" x2="1">
+      <stop stop-color="#36e7a3"/>
+      <stop offset="1" stop-color="#43b8ff"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="460" rx="32" fill="url(#bg)"/>
+  <g opacity=".12" stroke="#6fffc3">
+    <path d="M0 92h1200M0 184h1200M0 276h1200M0 368h1200"/>
+    <path d="M120 0v460M240 0v460M360 0v460M480 0v460M600 0v460M720 0v460M840 0v460M960 0v460M1080 0v460"/>
+  </g>
+  <text x="72" y="76" fill="#eafff7" font-family="ui-monospace,monospace" font-size="26" font-weight="700">EOH CATALOG AGENT</text>
+  <text x="72" y="111" fill="#80a397" font-family="ui-monospace,monospace" font-size="17">MESSY SUPPLIER DATA → STORE-READY DRAFTS</text>
+
+  <g transform="translate(72 157)">
+    <rect width="260" height="204" rx="22" fill="#071b15" stroke="#286b54" stroke-width="2"/>
+    <text x="28" y="42" fill="#8ca79e" font-family="ui-monospace,monospace" font-size="17">SUPPLIER.CSV</text>
+    <g fill="#d8eee7" font-family="ui-monospace,monospace" font-size="18">
+      <text x="28" y="86">SKU</text><text x="105" y="86">PRICE</text><text x="196" y="86">IMG</text>
+      <text x="28" y="124">A-101</text><text x="105" y="124">$29</text><text x="196" y="124">✓</text>
+      <text x="28" y="160">A-102</text><text x="105" y="160">?</text><text x="196" y="160">—</text>
+    </g>
+  </g>
+
+  <path d="M366 259h120" stroke="url(#flow)" stroke-width="5" stroke-linecap="round"/>
+  <path d="m472 245 18 14-18 14" fill="none" stroke="#36e7a3" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <g transform="translate(498 151)" filter="url(#glow)">
+    <circle cx="104" cy="108" r="94" fill="#08251b" stroke="#36e7a3" stroke-width="4"/>
+    <path d="M71 108l23 23 48-55" fill="none" stroke="#63ffc0" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="104" y="177" text-anchor="middle" fill="#c9ffeb" font-family="ui-monospace,monospace" font-size="17">CHECKED</text>
+  </g>
+
+  <path d="M708 259h104" stroke="url(#flow)" stroke-width="5" stroke-linecap="round"/>
+  <path d="m798 245 18 14-18 14" fill="none" stroke="#43b8ff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <g transform="translate(824 151)">
+    <rect width="304" height="96" rx="20" fill="#071820" stroke="#2d8cb9" stroke-width="2"/>
+    <circle cx="35" cy="33" r="9" fill="#43b8ff"/>
+    <text x="58" y="40" fill="#e5f7ff" font-family="ui-monospace,monospace" font-size="19" font-weight="700">SHOPIFY DRAFT</text>
+    <text x="35" y="72" fill="#79a9bd" font-family="ui-monospace,monospace" font-size="15">20 READY · 0 PUBLISHED</text>
+    <rect y="112" width="304" height="96" rx="20" fill="#171009" stroke="#c9842c" stroke-width="2"/>
+    <circle cx="35" cy="145" r="9" fill="#f0a33f"/>
+    <text x="58" y="152" fill="#fff2df" font-family="ui-monospace,monospace" font-size="19" font-weight="700">WOO DRAFT</text>
+    <text x="35" y="184" fill="#bfa17a" font-family="ui-monospace,monospace" font-size="15">ISSUES + PROFIT RECEIPT</text>
+  </g>
+</svg>
