@@ -12,6 +12,8 @@ Give the agent a CSV/XLSX. It normalizes product data, quarantines duplicates an
 - non-zero exit for incomplete batches
 - revenue, execution cost, and net-profit receipt
 - persistent marketplace deal cards with qualification and stop-loss
+- deterministic USD wallet with per-step estimate, reservation, actual cost, and remaining balance
+- optional Browser Use CAPTCHA/proxy sessions purchased only when affordable
 
 ```text
 supplier.csv  ->  checked catalog  ->  Shopify / WooCommerce drafts
@@ -62,7 +64,20 @@ export EOH_DEAL_ROOT="$PWD/.eoh/deals"
 catalog-seller chat -q "Find one paid catalog test, qualify it, and draft a proposal. Do not send it."
 ```
 
-The profile combines Hermes search and its native browser tools with persistent deal state: discover → qualify → draft → negotiate → deliver → record real economics. It expects the established browser CDP at `http://127.0.0.1:9223`; change `browser.cdp_url` in the installed profile when your shared authenticated browser uses a different endpoint. Proposal submission, Connects spending, contracts, and publishing remain explicit human actions.
+The profile combines Hermes search and accessibility-first native browser tools with persistent deal state: discover → qualify → draft → negotiate → deliver → record real economics. Each action gets a machine-calculated estimate before execution and an actual/estimated settlement afterward; the ledger returns the remaining balance without using an LLM for arithmetic.
+
+It expects the established local browser CDP at `http://127.0.0.1:9223`; change `browser.cdp_url` when your shared authenticated browser uses a different endpoint. For protected business pages, configure `BROWSER_USE_API_KEY` through Hermes' secret/config flow. The `paid_browser_start` tool reserves funds first, then creates Browser Use with CAPTCHA solving and a residential proxy; `paid_browser_stop` records provider-reported browser and proxy cost. Set `EOH_MINIMUM_RESERVE_USD` to keep an operating reserve after any purchase. With no key, insufficient balance, or insufficient post-purchase reserve, no paid session is created.
+
+Point the CLI and Hermes profile at the same operational ledger. Initialize it once before first use (or credit verified income with a receipt), then ask for a deterministic quote:
+
+```bash
+export EOH_ECONOMY_ROOT="$HOME/.hermes/profiles/catalog-seller/economy"
+eoh-catalog-agent wallet --root "$EOH_ECONOMY_ROOT" init --balance-usd 5
+eoh-catalog-agent browser --root "$EOH_ECONOMY_ROOT" quote --minutes 10 --proxy-mb 10
+eoh-catalog-agent wallet --root "$EOH_ECONOMY_ROOT" status
+```
+
+Proposal submission, Connects spending, contracts, and publishing remain explicit human actions.
 
 ## Verify from source
 

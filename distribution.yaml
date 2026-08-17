@@ -1,9 +1,19 @@
 name: catalog-seller
-version: 0.2.0
+version: 0.3.0
 description: Find, qualify, negotiate, and deliver paid Shopify and WooCommerce catalog jobs with persistent deal state and explicit approval before outbound actions.
 author: meanwebuser
 license: MIT
+env_requires:
+  - name: BROWSER_USE_API_KEY
+    description: Optional Browser Use key for paid CAPTCHA-solving proxy sessions.
+    required: false
+  - name: EOH_MINIMUM_RESERVE_USD
+    description: Minimum USD that must remain after a paid browser purchase.
+    required: false
+    default: "0"
 distribution_owned:
   - SOUL.md
   - config.yaml
   - skills/
+  - plugins/
+  - src/

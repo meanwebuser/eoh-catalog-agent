@@ -1,3 +1,6 @@
+model:
+  default: MiniMax-M3
+  provider: minimax-oauth
 browser:
   cdp_url: http://127.0.0.1:9223
   allow_private_urls: true
@@ -6,3 +9,6 @@ web:
   search_backend: searxng
 auxiliary:
   free_only: true
+plugins:
+  enabled:
+    - catalog-economy

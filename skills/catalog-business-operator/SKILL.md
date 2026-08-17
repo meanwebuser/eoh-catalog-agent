@@ -30,6 +30,16 @@ Run one narrow business: turn supplier data into checked Shopify/WooCommerce cat
 8. **Deliver.** Run a 20-product batch first. Return normalized CSV, target import, issues, and receipt. Never publish products until accepted.
 9. **Close economics.** Record real revenue and measured execution expense in the final receipt. Never use hypothetical revenue as earned revenue.
 
+## Economics contract
+
+The `catalog-economy` hooks automatically write expected and actual entries for every Hermes tool and LLM call. For additional paid external actions:
+
+1. Call `economy_step_plan` before acting only when a dedicated priced tool or automatic hook does not already own the entry. Record a unique step ID, label, and expected USD cost.
+2. Read `projected_remaining_usd` and `minimum_reserve_usd`. Do not perform a paid action if it would consume the configured `EOH_MINIMUM_RESERVE_USD` operating reserve or if its expected business value does not justify its cost.
+3. Call `economy_step_settle` after acting with provider-reported actual cost when available; otherwise use the best measured estimate and `actual_status=estimated`.
+4. Use `wallet_status` and `economy_history` for balances and receipts. Never calculate balances, reservations, or remaining money in prose or with an LLM.
+5. Call `wallet_credit` only for money actually received and attach a source/job identifier. Never credit a proposal, promise, or hypothetical revenue.
+
 ## Deal-state discipline
 
 After every meaningful page read or message, update:
@@ -58,13 +68,23 @@ Do not keep persuading a clearly unqualified client. Set `stage=walked-away` and
 
 ## Browser contract
 
-Use Hermes's native `browser_navigate`, `browser_snapshot`, `browser_click`, `browser_type`, and `browser_vision` tools. They attach through the profile's configured `browser.cdp_url` to the established shared BrowserOS profile.
+Use Hermes's native `browser_navigate`, `browser_snapshot`, `browser_click`, and `browser_type` tools. They use agent-browser's accessibility tree and semantic refs. The profile's local path attaches through `browser.cdp_url` to the established shared BrowserOS profile.
 
 Do not call `browseros-cli`, launch a browser, initialize a new MCP URL, change CDP ports, or create another browser profile. If native `browser_navigate` cannot attach, record the failure and stop at that exact boundary.
 
-Follow `navigate → snapshot → act → snapshot`. After a timeout or ambiguous result, call `browser_vision` before retrying. Never reuse element references after navigation.
+Follow `navigate → accessibility snapshot/ref → act by ref → snapshot`. Prefer roles, accessible names, labels, and refs over visual coordinates. Never reuse element references after navigation.
 
-If `browser_vision` is unavailable, preserve the native browser error and report that visual evidence is unavailable. Do not substitute `computer_use`, raw HTTP, or a second browser and call it equivalent proof.
+Use screenshots/vision only when the accessibility tree cannot represent a genuinely visual fact or when capturing an observed failure. Do not use coordinate clicks while a stable ref exists.
+
+On legitimate CAPTCHA/bot blocking:
+
+1. Call `paid_browser_quote` with bounded minutes and proxy MB.
+2. Continue only when `can_afford=true` and the job's expected value justifies the quote.
+3. Call `paid_browser_start`; it reserves money before creating a Browser Use cloud session with CAPTCHA solving and residential proxy. If credentials are absent or money is insufficient, no session is purchased.
+4. The tool privately attaches Hermes native browser tools to the paid CDP without exposing its credential-bearing URL. Continue accessibility-first with those native tools.
+5. Call `paid_browser_stop` immediately when finished. It settles provider-reported `browserCost + proxyCost` and returns unused reserve.
+
+If the paid provider or visual evidence is unavailable, preserve the native browser error and report the exact boundary. Do not substitute raw HTTP or a different browser and call it equivalent proof.
 
 Do not turn arbitrary sites into covert transport. A website is a usable business channel only when it has a legitimate account/session, a stable conversation URL or thread identifier, and marketplace-permitted messaging.
 

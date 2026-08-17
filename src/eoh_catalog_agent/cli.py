@@ -9,6 +9,14 @@ from typing import Sequence
 
 from .pipeline import prepare_catalog
 from .deals import DealStore, qualify, render_proposal, should_walk_away
+from .economics import (
+    InsufficientFunds,
+    WalletLedger,
+    browser_affordability,
+    quote_browser_use,
+    quote_dict,
+    status_dict,
+)
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -98,11 +106,82 @@ def _parser() -> argparse.ArgumentParser:
     update.add_argument("--clear-missing", action="store_true")
     update.add_argument("--missing", action="append", default=[])
     update.add_argument("--note", action="append", default=[])
+
+    wallet = subparsers.add_parser("wallet", help="Deterministic USD wallet and ledger")
+    wallet.add_argument("--root", type=Path, default=Path(".eoh/economy"))
+    wallet_commands = wallet.add_subparsers(dest="wallet_command", required=True)
+    wallet_init = wallet_commands.add_parser("init", help="Initialize the wallet once")
+    wallet_init.add_argument("--balance-usd", required=True)
+    wallet_credit = wallet_commands.add_parser("credit", help="Record verified income")
+    wallet_credit.add_argument("--amount-usd", required=True)
+    wallet_credit.add_argument("--label", required=True)
+    wallet_credit.add_argument("--source-id", required=True)
+    wallet_commands.add_parser("status", help="Show balance, reservations, and spend")
+    wallet_history = wallet_commands.add_parser("history", help="Show append-only ledger entries")
+    wallet_history.add_argument("--limit", type=int, default=20)
+
+    step = subparsers.add_parser("step", help="Plan and settle one priced action")
+    step.add_argument("--root", type=Path, default=Path(".eoh/economy"))
+    step_commands = step.add_subparsers(dest="step_command", required=True)
+    step_plan = step_commands.add_parser("plan", help="Write expected cost before acting")
+    step_plan.add_argument("--id", required=True)
+    step_plan.add_argument("--label", required=True)
+    step_plan.add_argument("--estimated-cost-usd", required=True)
+    step_plan.add_argument("--reserve", action="store_true")
+    step_settle = step_commands.add_parser("settle", help="Write actual cost after acting")
+    step_settle.add_argument("--id", required=True)
+    step_settle.add_argument("--actual-cost-usd", required=True)
+    step_settle.add_argument("--status", default="actual")
+
+    browser = subparsers.add_parser("browser", help="Quote paid Browser Use sessions")
+    browser.add_argument("--root", type=Path, default=Path(".eoh/economy"))
+    browser_commands = browser.add_subparsers(dest="browser_command", required=True)
+    browser_quote = browser_commands.add_parser("quote", help="Calculate browser + proxy cost without an LLM")
+    browser_quote.add_argument("--minutes", type=int, default=10)
+    browser_quote.add_argument("--proxy-mb", type=int, default=10)
     return parser
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _parser().parse_args(argv)
+    if args.command in {"wallet", "step", "browser"}:
+        ledger = WalletLedger(args.root)
+        try:
+            if args.command == "wallet":
+                if args.wallet_command == "init":
+                    result = status_dict(ledger.initialize(args.balance_usd))
+                elif args.wallet_command == "credit":
+                    result = status_dict(ledger.credit(args.amount_usd, label=args.label, source_id=args.source_id))
+                elif args.wallet_command == "status":
+                    result = status_dict(ledger.status())
+                else:
+                    result = {"entries": ledger.latest(args.limit), "status": status_dict(ledger.status())}
+            elif args.command == "step":
+                if args.step_command == "plan":
+                    result = ledger.plan_step(
+                        args.id,
+                        label=args.label,
+                        estimated_cost_usd=args.estimated_cost_usd,
+                        reserve=args.reserve,
+                    )
+                else:
+                    result = ledger.settle_step(
+                        args.id,
+                        actual_cost_usd=args.actual_cost_usd,
+                        actual_status=args.status,
+                    )
+            else:
+                quote = quote_dict(quote_browser_use(minutes=args.minutes, proxy_mb=args.proxy_mb))
+                quote.update(browser_affordability(
+                    available_usd=ledger.status().available_usd,
+                    estimated_cost_usd=quote["estimated_cost_usd"],
+                ))
+                result = quote
+        except (FileExistsError, FileNotFoundError, InsufficientFunds, ValueError) as exc:
+            print(json.dumps({"error": str(exc)}, ensure_ascii=False), file=sys.stderr)
+            return 2
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        return 0
     if args.command == "deal":
         store = DealStore(args.trailing_deal_root or args.deal_root)
         try:

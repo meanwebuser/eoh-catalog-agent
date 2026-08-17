@@ -1,0 +1,20 @@
+name: catalog-economy
+version: "0.3.0"
+description: "Deterministic wallet, per-step cost receipts, and an affordable Browser Use CAPTCHA/proxy purchase gate."
+provides_tools:
+  - wallet_status
+  - economy_history
+  - wallet_credit
+  - economy_step_plan
+  - economy_step_settle
+  - paid_browser_quote
+  - paid_browser_start
+  - paid_browser_stop
+provides_hooks:
+  - pre_tool_call
+  - post_tool_call
+  - transform_tool_result
+  - pre_api_request
+  - post_api_request
+  - transform_llm_output
+  - on_session_end

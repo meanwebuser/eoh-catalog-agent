@@ -450,7 +450,7 @@ def prepare_catalog(
     issue_counts = Counter(issue.code for issue in issues)
     receipt: dict[str, object] = {
         "agent": "eoh-catalog-agent",
-        "version": "0.2.0",
+        "version": "0.3.0",
         "job_id": job_id,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "input_file": str(source),
